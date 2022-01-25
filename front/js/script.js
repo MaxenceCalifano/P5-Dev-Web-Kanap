@@ -17,19 +17,18 @@ fetch("http://localhost:3000/api/products/")
  */
 const insertProducts = (value) => {
   const items = document.getElementById("items");
-  console.log(items);
+  let links = "";
+
   for (let item of value) {
-    items.insertAdjacentHTML(
-      "beforeend",
-      `           
-                   <a href="./product.html?id=${item._id}">
-                   <article>
-                     <img src="${item.imageUrl}" alt="${item.altTxt}">
-                     <h3 class="productName">${item.name}</h3>
-                     <p class="productDescription">${item.description}</p>
-                   </article>
-                 </a>`
-    );
+    links += `           
+    <a href="./product.html?id=${item._id}">
+    <article>
+      <img src="${item.imageUrl}" alt="${item.altTxt}">
+      <h3 class="productName">${item.name}</h3>
+      <p class="productDescription">${item.description}</p>
+    </article>
+  </a>`;
+    console.log(links);
   }
+  items.insertAdjacentHTML("beforeend", links);
 };
-//export default { products };
