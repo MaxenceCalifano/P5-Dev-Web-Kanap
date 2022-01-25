@@ -56,16 +56,17 @@ product_options.addEventListener("change", (event) => {
 product_quantity.addEventListener("change", (event) => {
   quantity = event.target.value;
 });
-let cart = [];
+let cart = JSON.parse(localStorage.getItem("cart"));
 console.log(localStorage.getItem("cart"));
 
 const addToCart = () => {
-  if (localStorage.length === 0) {
-    cart.push({ id: product_id, quantity: quantity, color: color });
+  if (cart == null) {
+    cart = [{ id: product_id, quantity: quantity, color: color }];
     localStorage.setItem("cart", JSON.stringify(cart));
-
+    console.log("hey");
     console.log(JSON.parse(localStorage.getItem("cart")));
   } else {
+    //cart = JSON.parse(localStorage.getItem("cart"));
     const findProductToIncrement = cart.findIndex(
       (elem) => elem.id == product_id && elem.color == color /*compare(elem) */
     );
@@ -81,16 +82,10 @@ const addToCart = () => {
       console.log(JSON.parse(localStorage.getItem("cart")));
     }
   }
-  /*  else {
-        console.log("else");
-        cart.push({ id: product_id, quantity: quantity, color: color });
-      } 
-    }
-  }*/
 };
 
 buttonAddToCart.addEventListener("click", addToCart);
-localStorage.clear();
+//localStorage.clear();
 
 /* let cart = [
   { id: 95651, color: "white", quantity: 6 },
