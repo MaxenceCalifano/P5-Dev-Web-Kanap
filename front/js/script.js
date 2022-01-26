@@ -28,7 +28,6 @@ const insertProducts = (value) => {
       <p class="productDescription">${item.description}</p>
     </article>
   </a>`;
-    console.log(links);
   }
   items.insertAdjacentHTML("beforeend", links);
 };
