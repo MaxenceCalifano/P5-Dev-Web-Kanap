@@ -85,7 +85,6 @@ const addToCart = () => {
 };
 
 buttonAddToCart.addEventListener("click", addToCart);
-//localStorage.clear();
 
 /* let cart = [
   { id: 95651, color: "white", quantity: 6 },
