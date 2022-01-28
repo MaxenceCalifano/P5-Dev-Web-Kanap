@@ -1,5 +1,3 @@
-//import { products } from "./script";
-
 const product_img = document.getElementsByClassName("item__img");
 const product_title = document.getElementById("title");
 const product_descritption = document.getElementById("description");
@@ -10,7 +8,7 @@ const product_quantity = document.getElementById("quantity");
 const buttonAddToCart = document.getElementById("addToCart");
 
 let color = "";
-let quantity = 1;
+let quantity = 0;
 
 const url = new URL(window.location.href);
 const product_id = url.searchParams.get("id");
@@ -57,48 +55,28 @@ product_quantity.addEventListener("change", (event) => {
   quantity = event.target.value;
 });
 let cart = JSON.parse(localStorage.getItem("cart"));
-console.log(localStorage.getItem("cart"));
 
+/*
+ * add product to cart or increment its quantity depending if it is already in the cart
+ */
 const addToCart = () => {
   if (cart == null) {
     cart = [{ id: product_id, quantity: quantity, color: color }];
     localStorage.setItem("cart", JSON.stringify(cart));
-    console.log("hey");
-    console.log(JSON.parse(localStorage.getItem("cart")));
   } else {
-    //cart = JSON.parse(localStorage.getItem("cart"));
     const findProductToIncrement = cart.findIndex(
-      (elem) => elem.id == product_id && elem.color == color /*compare(elem) */
+      (elem) => elem.id == product_id && elem.color == color
     );
     if (findProductToIncrement == -1) {
       cart.push({ id: product_id, quantity: quantity, color: color });
       localStorage.setItem("cart", JSON.stringify(cart));
-      console.log(JSON.parse(localStorage.getItem("cart")));
     } else {
       let totalQuantity =
         parseInt(quantity) + parseInt(cart[findProductToIncrement].quantity);
       cart[findProductToIncrement].quantity = totalQuantity;
       localStorage.setItem("cart", JSON.stringify(cart));
-      console.log(JSON.parse(localStorage.getItem("cart")));
     }
   }
 };
 
 buttonAddToCart.addEventListener("click", addToCart);
-
-/* let cart = [
-  { id: 95651, color: "white", quantity: 6 },
-  { id: 95651, color: "white", quantity: 6 },
-]; */
-
-/*
-Cas ajouter : 
-  localStrorage est vide ? :
-  Oui : on ajoute le nouvel élément
-  Non : 
-    Parcourir les clé de localStorage : 
-      SI il y a l'id de l'élément ? :
-        Cet élément a-t-il la même couleur ?
-          si oui : on incrémente la quantité
-          si non : on ajoute le nouvel élément
-*/

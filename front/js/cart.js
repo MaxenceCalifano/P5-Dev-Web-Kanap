@@ -1,16 +1,7 @@
-/*              
-              Ce qu'il me faut : 
-                ID
-                couleur
-                image
-                nom du produit
-                prix
-                quantité*/
-
 const cartItems = document.getElementById("cart__items");
 const totalQuantity = document.getElementById("totalQuantity");
 const totalPrice = document.getElementById("totalPrice");
-let cartQuantity = 0;
+let cartTotalQuantity = 0;
 let cartTotalPrice = 0;
 let cart = JSON.parse(localStorage.getItem("cart"));
 let products;
@@ -25,8 +16,9 @@ fetch("http://localhost:3000/api/products/")
     console.log("produits de l'API", products);
 
     for (const item of cart) {
+      console.log(cart.indexOf(item));
       console.log("éléments dans le panier", item);
-      cartQuantity += parseInt(item.quantity);
+      cartTotalQuantity += parseInt(item.quantity);
       for (const product of products) {
         if (product._id == item.id) {
           console.log(product);
@@ -39,7 +31,9 @@ fetch("http://localhost:3000/api/products/")
       }
       cartItems.insertAdjacentHTML(
         "beforeend",
-        `<article class="cart__item" data-id="${item.id}" data-color="${item.color}">
+        `<article class="cart__item" data-id="${item.id}" data-color="${
+          item.color
+        }">
         <div class="cart__item__img">
           <img src=${item.imageUrl} alt=${item.altTxt}>
         </div>
@@ -52,7 +46,9 @@ fetch("http://localhost:3000/api/products/")
           <div class="cart__item__content__settings">
             <div class="cart__item__content__settings__quantity">
               <p>Qté : </p>
-              <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${item.quantity}">
+              <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${
+                item.quantity
+              }" onchange="cartQuantitychanged('${cart.indexOf(item)}')" >
             </div>
             <div class="cart__item__content__settings__delete">
               <p class="deleteItem">Supprimer</p>
@@ -62,9 +58,20 @@ fetch("http://localhost:3000/api/products/")
       </article>`
       );
     }
-    totalQuantity.textContent = cartQuantity;
+    totalQuantity.textContent = cartTotalQuantity;
     totalPrice.textContent = cartTotalPrice;
   })
   .catch(function (err) {
     console.error(err);
   });
+
+const cartQuantitychanged = (indexOfItem) => {
+  cartTotalQuantity = 0;
+  cart[indexOfItem].quantity = event.target.value;
+  for (const product of cart) {
+    cartTotalQuantity += parseInt(product.quantity);
+  }
+  totalQuantity.textContent = cartTotalQuantity;
+};
+
+console.log(cart);
