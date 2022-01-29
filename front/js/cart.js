@@ -16,12 +16,11 @@ fetch("http://localhost:3000/api/products/")
     console.log("produits de l'API", products);
 
     for (const item of cart) {
-      console.log(cart.indexOf(item));
       console.log("éléments dans le panier", item);
       cartTotalQuantity += parseInt(item.quantity);
       for (const product of products) {
         if (product._id == item.id) {
-          console.log(product);
+          //console.log(product);
           item.price = product.price;
           item.name = product.name;
           item.imageUrl = product.imageUrl;
@@ -31,9 +30,7 @@ fetch("http://localhost:3000/api/products/")
       }
       cartItems.insertAdjacentHTML(
         "beforeend",
-        `<article class="cart__item" data-id="${item.id}" data-color="${
-          item.color
-        }">
+        `<article class="cart__item" data-id="${item.id}" data-color="${item.color}">
         <div class="cart__item__img">
           <img src=${item.imageUrl} alt=${item.altTxt}>
         </div>
@@ -46,9 +43,7 @@ fetch("http://localhost:3000/api/products/")
           <div class="cart__item__content__settings">
             <div class="cart__item__content__settings__quantity">
               <p>Qté : </p>
-              <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${
-                item.quantity
-              }" onchange="cartQuantitychanged('${cart.indexOf(item)}')" >
+              <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${item.quantity}"  >
             </div>
             <div class="cart__item__content__settings__delete">
               <p class="deleteItem">Supprimer</p>
@@ -60,18 +55,66 @@ fetch("http://localhost:3000/api/products/")
     }
     totalQuantity.textContent = cartTotalQuantity;
     totalPrice.textContent = cartTotalPrice;
+
+    const articles = Array.from(document.getElementsByClassName("cart__item"));
+    console.log("articles => ", articles[0]);
+
+    articles.forEach((article) => {
+      article.addEventListener("change", (event) =>
+        cartQuantitychanged(article, event)
+      );
+    });
+
+    /* for (let i = 0; i < articles.length; i++) {
+      articles[i].addEventListener("change", (event) => cartQuantitychanged(i));
+    } */
+
+    const deleteButtons = document.getElementsByClassName("deleteItem");
+
+    for (let i = 0; i < deleteButtons.length; i++) {
+      let articleToDelete = deleteButtons[i].closest("article");
+
+      deleteButtons[i].addEventListener("click", () =>
+        deleteArticle(articleToDelete)
+      );
+    }
   })
   .catch(function (err) {
     console.error(err);
   });
 
-const cartQuantitychanged = (indexOfItem) => {
+const cartQuantitychanged = (article, event) => {
+  let getId = article.dataset.id;
+  let getColor = article.dataset.color;
+
+  let productIndex = cart.findIndex(
+    (elem) => elem.id == getId && elem.color == getColor
+  );
+
   cartTotalQuantity = 0;
-  cart[indexOfItem].quantity = event.target.value;
+  cartTotalPrice = 0;
+  cart[productIndex].quantity = event.target.value;
   for (const product of cart) {
     cartTotalQuantity += parseInt(product.quantity);
+    cartTotalPrice += product.price * product.quantity;
   }
   totalQuantity.textContent = cartTotalQuantity;
+  totalPrice.textContent = cartTotalPrice;
 };
 
-console.log(cart);
+const deleteArticle = (articleToDelete) => {
+  let getId = articleToDelete.dataset.id;
+  let getColor = articleToDelete.dataset.color;
+
+  let productIndex = cart.findIndex(
+    (elem) => elem.id == getId && elem.color == getColor
+  );
+  cartTotalQuantity -= parseInt(cart[productIndex].quantity);
+  cartTotalPrice -= cart[productIndex].price * cart[productIndex].quantity;
+
+  totalQuantity.textContent = cartTotalQuantity;
+  totalPrice.textContent = cartTotalPrice;
+
+  cart.splice(productIndex, 1);
+  articleToDelete.remove();
+};
