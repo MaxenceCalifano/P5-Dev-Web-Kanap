@@ -12,15 +12,14 @@ fetch("http://localhost:3000/api/products/")
     }
   })
   .then(function (value) {
-    products = value;
-    console.log("produits de l'API", products);
+    //products = value;
+    console.log("produits de l'API", value);
 
     for (const item of cart) {
       console.log("éléments dans le panier", item);
       cartTotalQuantity += parseInt(item.quantity);
-      for (const product of products) {
+      for (const product of value) {
         if (product._id == item.id) {
-          //console.log(product);
           item.price = product.price;
           item.name = product.name;
           item.imageUrl = product.imageUrl;
@@ -57,17 +56,12 @@ fetch("http://localhost:3000/api/products/")
     totalPrice.textContent = cartTotalPrice;
 
     const articles = Array.from(document.getElementsByClassName("cart__item"));
-    console.log("articles => ", articles[0]);
 
     articles.forEach((article) => {
       article.addEventListener("change", (event) =>
         cartQuantitychanged(article, event)
       );
     });
-
-    /* for (let i = 0; i < articles.length; i++) {
-      articles[i].addEventListener("change", (event) => cartQuantitychanged(i));
-    } */
 
     const deleteButtons = document.getElementsByClassName("deleteItem");
 
@@ -78,6 +72,10 @@ fetch("http://localhost:3000/api/products/")
         deleteArticle(articleToDelete)
       );
     }
+
+    /* let cartWithoutPrice = [...cart];
+    cartWithoutPrice.forEach((test12) => delete test12.price);
+    console.log(cartWithoutPrice); */
   })
   .catch(function (err) {
     console.error(err);
@@ -118,3 +116,107 @@ const deleteArticle = (articleToDelete) => {
   cart.splice(productIndex, 1);
   articleToDelete.remove();
 };
+
+//Form validation
+let contact = {};
+
+const testUserInput = (testString, testRegex, errMsgPlaceholder, errorMsg) => {
+  if (testRegex.test(testString.value)) {
+    errMsgPlaceholder.textContent = "";
+    contact[testString.name] = testString.value;
+  } else {
+    errMsgPlaceholder.textContent = errorMsg;
+    contact[testString.name] = "";
+  }
+
+  /* testRegex.test(testString)
+    ? (errMsgPlaceholder.textContent = "")
+    : (errMsgPlaceholder.textContent = errorMsg); */
+};
+
+const errPhrase = (field) =>
+  `Le texte entré est vide ou contient des caractères non-acceptés, veuillez saisir votre ${field} à nouveau`;
+
+const firstName = document.getElementById("firstName");
+const firstNameErrorMsg = document.getElementById("firstNameErrorMsg");
+firstName.addEventListener("blur", (e) => {
+  testUserInput(firstName, /[a-zA-Z]+/, firstNameErrorMsg, errPhrase("prénom"));
+});
+
+const lastName = document.getElementById("lastName");
+const lastNameErrorMsg = document.getElementById("lastNameErrorMsg");
+lastName.addEventListener("blur", (e) => {
+  testUserInput(
+    lastName,
+    /^[^/,:<>!_~@#$%^&()+=?()“|!\[#$0-9]+$/,
+    lastNameErrorMsg,
+    errPhrase("nom")
+  );
+});
+
+const address = document.getElementById("address");
+const addressErrorMsg = document.getElementById("addressErrorMsg");
+address.addEventListener("blur", (e) =>
+  testUserInput(
+    address,
+    /^[^;,:<>!_~@#$%^&()+=?()“|!\[#$]+$/,
+    addressErrorMsg,
+    errPhrase("adresse")
+  )
+);
+
+const city = document.getElementById("city");
+const cityErrorMsg = document.getElementById("cityErrorMsg");
+
+city.addEventListener("blur", (e) =>
+  testUserInput(
+    city,
+    /^[^;,:<>!_~@#$%^&()+=?()“|!\[#$0-9]+$/,
+    cityErrorMsg,
+    errPhrase("ville")
+  )
+);
+
+const email = document.getElementById("email");
+const emailErrorMsg = document.getElementById("emailErrorMsg");
+
+email.addEventListener("blur", (e) =>
+  testUserInput(
+    email,
+    /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/,
+    emailErrorMsg,
+    errPhrase("e-mail")
+  )
+);
+
+const order = document
+  .getElementById("order")
+  .addEventListener("click", (e) => {
+    e.preventDefault();
+
+    if (Object.keys(contact).length < 5) {
+      return console.log(
+        "Veuillez compléter le formulaire pour passer commande"
+      );
+    } else {
+      for (const property in contact) {
+        if (contact[property] == "") {
+          return console.log(
+            "Veuillez compléter le formulaire pour passer commande"
+          );
+        }
+        fetch("http://localhost:3000/api/products/order", {
+          method: "POST",
+
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify(contact),
+        })
+          .then((response) => response.json())
+          .then((json) => console.log(json));
+      }
+    }
+  });
