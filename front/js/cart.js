@@ -5,15 +5,16 @@ let cartTotalQuantity = 0;
 let cartTotalPrice = 0;
 let cart = JSON.parse(localStorage.getItem("cart"));
 let products = "";
-/* fetch("http://localhost:3000/api/products/")
-  .then(function (res) {
-    if (res.ok) {
-      return res.json();
-    }
-  })
-  .then(function (value) {
-    //products = value;
-    console.log("produits de l'API", value); */
+
+const url = new URL(window.location.href);
+const params = new URLSearchParams(url.search);
+
+if (params.has("order")) {
+  localStorage.clear();
+  let orderId = document.getElementById("orderId");
+  orderId.textContent = url.searchParams.get("order");
+}
+
 cart.map((item) =>
   console.log(`http://localhost:3000/api/products/${item.id}`)
 );
@@ -186,6 +187,8 @@ email.addEventListener("blur", (e) =>
   )
 );
 
+const idsArray = cart.map((product) => product.id);
+
 const order = document
   .getElementById("order")
   .addEventListener("click", (e) => {
@@ -210,10 +213,15 @@ const order = document
             "Content-Type": "application/json",
           },
 
-          body: JSON.stringify(contact),
+          body: JSON.stringify({
+            contact: contact,
+            products: idsArray,
+          }),
         })
           .then((response) => response.json())
-          .then((json) => console.log(json));
+          .then((json) => {
+            window.location.assign(`./confirmation.html?order=${json.orderId}`);
+          });
       }
     }
   });

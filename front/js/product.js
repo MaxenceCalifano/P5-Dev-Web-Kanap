@@ -7,6 +7,11 @@ const product_quantity = document.getElementById("quantity");
 
 const buttonAddToCart = document.getElementById("addToCart");
 
+const product_input = document.getElementsByClassName(
+  "item__content__settings__quantity"
+);
+const displayMessageBelowInput = document.createElement("p");
+
 let color = "";
 let quantity = 0;
 
@@ -60,21 +65,30 @@ let cart = JSON.parse(localStorage.getItem("cart"));
  * add product to cart or increment its quantity depending if it is already in the cart
  */
 const addToCart = () => {
-  if (cart == null) {
-    cart = [{ id: product_id, quantity: quantity, color: color }];
-    localStorage.setItem("cart", JSON.stringify(cart));
+  if (quantity < 1 || color == "") {
+    displayMessageBelowInput.textContent =
+      "Veuillez choisir une couleur et une quantité s'il vous plaît";
+    product_input[0].appendChild(displayMessageBelowInput);
   } else {
-    const findProductToIncrement = cart.findIndex(
-      (elem) => elem.id == product_id && elem.color == color
-    );
-    if (findProductToIncrement == -1) {
-      cart.push({ id: product_id, quantity: quantity, color: color });
+    displayMessageBelowInput.textContent =
+      "Le produit a été ajouté à votre panier !";
+    product_input[0].appendChild(displayMessageBelowInput);
+    if (cart == null) {
+      cart = [{ id: product_id, quantity: quantity, color: color }];
       localStorage.setItem("cart", JSON.stringify(cart));
     } else {
-      let totalQuantity =
-        parseInt(quantity) + parseInt(cart[findProductToIncrement].quantity);
-      cart[findProductToIncrement].quantity = totalQuantity;
-      localStorage.setItem("cart", JSON.stringify(cart));
+      const findProductToIncrement = cart.findIndex(
+        (elem) => elem.id == product_id && elem.color == color
+      );
+      if (findProductToIncrement == -1) {
+        cart.push({ id: product_id, quantity: quantity, color: color });
+        localStorage.setItem("cart", JSON.stringify(cart));
+      } else {
+        let totalQuantity =
+          parseInt(quantity) + parseInt(cart[findProductToIncrement].quantity);
+        cart[findProductToIncrement].quantity = totalQuantity;
+        localStorage.setItem("cart", JSON.stringify(cart));
+      }
     }
   }
 };
