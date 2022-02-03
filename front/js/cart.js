@@ -15,9 +15,6 @@ if (params.has("order")) {
   orderId.textContent = url.searchParams.get("order");
 }
 
-cart.map((item) =>
-  console.log(`http://localhost:3000/api/products/${item.id}`)
-);
 Promise.all(
   cart.map((item) =>
     fetch(`http://localhost:3000/api/products/${item.id}`).then((res) =>
@@ -26,7 +23,6 @@ Promise.all(
   )
 )
   .then((json) => {
-    console.log(json[0]);
     for (let i = 0; i < cart.length; i++) {
       cart[i].price = json[i].price;
       cart[i].name = json[i].name;
@@ -94,6 +90,11 @@ const cartQuantitychanged = (article, event) => {
   cartTotalQuantity = 0;
   cartTotalPrice = 0;
   cart[productIndex].quantity = event.target.value;
+
+  let localStorageCart = JSON.parse(localStorage["cart"]);
+  localStorageCart[productIndex].quantity = event.target.value;
+  localStorage.setItem("cart", JSON.stringify(localStorageCart));
+
   for (const product of cart) {
     cartTotalQuantity += parseInt(product.quantity);
     cartTotalPrice += product.price * product.quantity;
@@ -103,8 +104,8 @@ const cartQuantitychanged = (article, event) => {
 };
 
 const deleteArticle = (articleToDelete) => {
-  let getId = articleToDelete.dataset.id;
-  let getColor = articleToDelete.dataset.color;
+  const getId = articleToDelete.dataset.id;
+  const getColor = articleToDelete.dataset.color;
 
   let productIndex = cart.findIndex(
     (elem) => elem.id == getId && elem.color == getColor
@@ -114,6 +115,10 @@ const deleteArticle = (articleToDelete) => {
 
   totalQuantity.textContent = cartTotalQuantity;
   totalPrice.textContent = cartTotalPrice;
+
+  let localStorageCart = JSON.parse(localStorage["cart"]);
+  localStorageCart.splice(productIndex, 1);
+  localStorage.setItem("cart", JSON.stringify(localStorageCart));
 
   cart.splice(productIndex, 1);
   articleToDelete.remove();
