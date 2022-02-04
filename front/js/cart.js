@@ -9,12 +9,18 @@ let products = "";
 const url = new URL(window.location.href);
 const params = new URLSearchParams(url.search);
 
+/*
+ * Display order ID only we're confirmation page
+ */
 if (params.has("order")) {
   localStorage.clear();
   let orderId = document.getElementById("orderId");
   orderId.textContent = url.searchParams.get("order");
 }
 
+/*
+ * Fetch product of the cart in the API
+ */
 Promise.all(
   cart.map((item) =>
     fetch(`http://localhost:3000/api/products/${item.id}`).then((res) =>
@@ -59,7 +65,8 @@ Promise.all(
     totalQuantity.textContent = cartTotalQuantity;
     totalPrice.textContent = cartTotalPrice;
 
-    const articles = Array.from(document.getElementsByClassName("cart__item")); // Get all articles and listen the value of quantity input
+    // Get all articles and listen the value of quantity input
+    const articles = Array.from(document.getElementsByClassName("cart__item"));
 
     articles.forEach((article) => {
       article.addEventListener("change", (event) => {
@@ -67,7 +74,8 @@ Promise.all(
       });
     });
 
-    const deleteButtons = document.getElementsByClassName("deleteItem"); // Get all delete buttons and listen click
+    // Get all delete buttons and listen click
+    const deleteButtons = document.getElementsByClassName("deleteItem");
 
     for (let i = 0; i < deleteButtons.length; i++) {
       let articleToDelete = deleteButtons[i].closest("article");
@@ -79,6 +87,10 @@ Promise.all(
   })
   .catch((err) => console.error(err));
 
+/*
+ * Listen if element quantity change and update it it localStorage and cart variable, and update total
+ * @param {HTMLElement} <article>, allows access to data properties
+ */
 const cartQuantitychanged = (article, event) => {
   let getId = article.dataset.id;
   let getColor = article.dataset.color;
@@ -103,6 +115,10 @@ const cartQuantitychanged = (article, event) => {
   totalPrice.textContent = cartTotalPrice;
 };
 
+/*
+ * Listen if delete button is clicked, update cart and localStorage, and update total quantity and price
+ * @param {HTMLElement} <article>, allows access to data properties
+ */
 const deleteArticle = (articleToDelete) => {
   const getId = articleToDelete.dataset.id;
   const getColor = articleToDelete.dataset.color;
@@ -127,6 +143,9 @@ const deleteArticle = (articleToDelete) => {
 //Form validation
 let contact = {};
 
+/*
+ * Test input and display a message if the value is not acceptable
+ */
 const testUserInput = (testString, testRegex, errMsgPlaceholder, errorMsg) => {
   if (testRegex.test(testString.value)) {
     errMsgPlaceholder.textContent = "";
@@ -192,8 +211,12 @@ email.addEventListener("blur", (e) =>
   )
 );
 
+// Create an array of ids of product in cart
 const idsArray = cart.map((product) => product.id);
 
+/*
+ * On click send contact information and products ids to API then get user to confirmation page
+ */
 const order = document
   .getElementById("order")
   .addEventListener("click", (e) => {
